@@ -21,7 +21,13 @@ class AthletesProvider implements ControllerProviderInterface
         $controllers->put('/{id}', [$controller, 'update']);
         $controllers->delete('/{id}', [$controller, 'delete']);
         $controllers->get('/fields', [$controller, 'fields']);
-        $controllers->get('/filter', [$controller, 'filter']);
+        $controllers->get('/filter', function (Request $request) use ($controller) {
+            $sportId = $request->query->get('sport_id') ?? null;
+            $name = $request->query->get('name') ?? null;
+            $birthday = $request->query->get('birthday') ?? null;
+
+            return $controller->filter($sportId, $name, $birthday);
+        });
 
         return $controllers;
     }

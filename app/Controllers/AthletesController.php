@@ -221,4 +221,48 @@ class AthletesController
             return json_encode(['error' => $e->getMessage()], 500);
         }
     }
+    public function filter($sportId = null, $name = null, $birthday = null)
+    {
+        // Базовый SQL-запрос
+        $sql = "SELECT * FROM {$this->tablename} WHERE 1=1";
+        $params = [];
+
+        // Добавляем условия фильтрации, если параметры не NULL
+        if ($sportId !== null) {
+            $sql .= " AND sport_id = :sport_id";
+            $params[':sport_id'] = $sportId;
+        }
+
+        if ($name !== null) {
+            $sql .= " AND name LIKE :name";
+            $params[':name'] = "%{$name}%"; // Частичное совпадение
+        }
+
+        if ($birthday !== null) {
+            $sql .= " AND birthday = :birthday";
+            $params[':birthday'] = $birthday;
+        }
+
+        // Подготовка и выполнение запроса
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $formatted = [];
+        foreach ($result as $row) {
+            if (isset($row['id'])) {
+                $id = $row['id'];
+                unset($row['id']);
+                array_walk($row, function (&$value) {
+                    if ($value === null) {
+                        $value = "";
+                    }
+                });
+                $formatted[$id] = $row;
+            }
+        }
+
+        return json_encode($formatted);
+    }
 }
