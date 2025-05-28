@@ -2,8 +2,9 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Providers\SportsProvider;
+use Providers\AthletesProvider;
 use Controllers\SportsController;
-
+use Controllers\AthletesController;
 
 $db_config = require_once __DIR__ . '/config.php';
 $db = $db_config['db'];
@@ -26,6 +27,9 @@ $app['db'] = function () use ($db) {
 $app['sports.controller'] = function ($app) {
     return new SportsController($app['db']);
 };
+$app['athletes.controller'] = function ($app) {
+    return new AthletesController($app['db']);
+};
 
 // Разрешаем переопределение метода (PUT/DELETE)
 $app->before(function (Request $request) {
@@ -35,5 +39,6 @@ $app->before(function (Request $request) {
 });
 
 $app->mount(prefix: '/api/sports', controllers: new SportsProvider());
+$app->mount(prefix: '/api/athletes', controllers: new AthletesProvider());
 
 $app->run();
